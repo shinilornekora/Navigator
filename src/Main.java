@@ -1,4 +1,3 @@
-import classes.KeyValue;
 import classes.Route;
 import implementations.Navigator;
 
@@ -9,11 +8,8 @@ public class Main {
     public static void main(String[] args) {
         addRouts();
         Scanner scanner = new Scanner(System.in);
-        Boolean exitFlag = false;
-        while (true) {
-            if (exitFlag) {
-                break;
-            }
+        boolean exitFlag = false;
+        while (!exitFlag) {
             System.out.println("""
                     Choose an action:
                     1) Add the route
@@ -70,17 +66,17 @@ public class Main {
                     String endPoint = scanner.next();
                     List<Route> routes = (List<Route>) navigator.searchRoutes(startPoint, endPoint);
                     System.out.println("Here are the routes:\n");
-                    for (Route r:routes)
+                    for (Route r : routes)
                         System.out.println(r);
                     break;
                 case 6:
                     System.out.println("input destination Point:");
                     String destinationPoint = scanner.next();
-                    for (Route r:navigator.getFavoriteRoutes(destinationPoint))
+                    for (Route r : navigator.getFavoriteRoutes(destinationPoint))
                         System.out.println(r);
                     break;
                 case 7:
-                    for (Route r:navigator.getTop5Routes())
+                    for (Route r : navigator.getTop5Routes())
                         System.out.println(r);
                     break;
                 case 8:
