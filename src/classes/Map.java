@@ -92,13 +92,15 @@ public class Map<K, V> implements Iterable<KeyValue<K, V>> {
             count++; // очередная занятая ячейка
         }
         else { // если в слоте уже есть list - у нас коллизия
-//            System.out.println("we get collision on slot " + slotNumber);
             collisionCount++;
         }
 //        идём по нашему list и проверяем каждое значение, если такой элемент есть - заменяем
         for (KeyValue<K,V> element : slots[slotNumber]){ // замена элемента если такой есть
             if (element.getKey().equals(key)){
                 element.setValue(value);
+                System.out.println("old element key = " + element.getKey());
+                System.out.println("new element key = " + key);
+                System.out.println("replace element");
                 return false; // прерываем выполнение, если замена выполнена
             }
         }
@@ -154,8 +156,6 @@ public class Map<K, V> implements Iterable<KeyValue<K, V>> {
     public void clear() {
         Arrays.setAll(slots, i -> slots[i]=null);
         count=0;
-        /*Arrays.fill(slots, null);
-        this.slots= (LinkedList<classes.KeyValue<K, V>>[]) Arrays.stream(this.slots).map(e->null).toArray();*/
     }
 
     public void printHashTableStats() {
@@ -205,25 +205,20 @@ public class Map<K, V> implements Iterable<KeyValue<K, V>> {
             private int slotIndex = 0;
             private int keyIndex = 0;
             private KeyValue<K, V> current;
-
             @Override
             public boolean hasNext() {
                 while (slotIndex < slots.length) {
-                    if (slots[slotIndex] != null && keyIndex < slots[slotIndex].size()) {
+                    if (slots[slotIndex] != null && keyIndex < slots[slotIndex].size())
                         return true;
-                    }
                     slotIndex++;
                     keyIndex = 0;
                 }
                 return false;
             }
-
             @Override
             public KeyValue<K, V> next() {
-                if (!hasNext()) {
+                if (!hasNext())
                     throw new NoSuchElementException();
-                }
-
                 current = slots[slotIndex].get(keyIndex);
                 keyIndex++;
                 return current;

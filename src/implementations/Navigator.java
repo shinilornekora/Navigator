@@ -1,10 +1,9 @@
 package implementations;
 
-import classes.KeyValue;
-import classes.Map;
-import classes.Route;
+import classes.*;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -15,7 +14,12 @@ public class Navigator implements interfaces.Navigator {
 
     @Override
     public void addRoute(Route route) {
-        this.map.add(route.hashCode(), route);
+        if (!contains(route)) {
+            System.out.println("add element in navigator.class " + route);
+            this.map.add(route.hashCode(), route);
+        }
+        else
+            System.out.println("this route already exist!");
     }
 
     @Override
@@ -32,7 +36,13 @@ public class Navigator implements interfaces.Navigator {
     @Override
     public boolean contains(Route route) {
         for (KeyValue<Integer, Route> k : this.map) {
-            if (Objects.equals(k.getValue().getId(), route.getId())) {
+            int currentRouteLen = k.getValue().getLocationPoints().size();
+            int newRouteLen = route.getLocationPoints().size();
+            if (Objects.equals(k.getValue().getId(), route.getId())||
+                    (Objects.equals(currentRouteLen, newRouteLen)&&
+                    Objects.equals(k.getValue().getLocationPoints().get(0), route.getLocationPoints().get(0))&&
+                    Objects.equals(k.getValue().getLocationPoints().get(currentRouteLen-1),
+                            route.getLocationPoints().get(newRouteLen-1)))) {
                 return true;
             }
         }
@@ -80,6 +90,9 @@ public class Navigator implements interfaces.Navigator {
                 routes.add(k.getValue());
             }
         }
+        routes.sort(Comparator.comparing(Route::getDistance));
+        routes.sort(new RoutePopularityComparator());
+        routes.sort(new RouteFavoriteComparator());
         return routes;
     }
 
@@ -87,10 +100,14 @@ public class Navigator implements interfaces.Navigator {
     public Iterable<Route> getFavoriteRoutes(String destinationPoint) {
         List<Route> routes = new ArrayList<>();
         for (KeyValue<Integer, Route> k : this.map) {
-            if (k.getValue().isFavorite()) {
+            int currentRouteLen = k.getValue().getLocationPoints().size();
+            if (k.getValue().isFavorite() &&
+                    k.getValue().getLocationPoints().get(currentRouteLen-1).equals(destinationPoint)) {
                 routes.add(k.getValue());
             }
         }
+        routes.sort(Comparator.comparing(Route::getDistance));
+        routes.sort(new RoutePopularityComparator());
         return routes;
     }
 
@@ -101,10 +118,17 @@ public class Navigator implements interfaces.Navigator {
         for (KeyValue<Integer, Route> k : this.map) {
             routes.add(k.getValue());
         }
-        routes.sort((id, element) -> (element.getPopularity()));
+        routes.sort(new RoutePopularityComparator());
+//        routes.sort(new RouteFavoriteComparator());
         for (int i = 0; i < 5; i++) {
             routesTop.add(routes.get(i));
         }
+        routesTop.sort(Comparator.comparing(Route::getDistance));
+        routesTop.sort(Comparator.comparing((Route route)->route.getLocationPoints().size()));
         return routesTop;
+    }
+    public void printNavigator(){
+        for (KeyValue<Integer, Route> k:this.map)
+            System.out.println(k);
     }
 }

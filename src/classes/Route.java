@@ -1,11 +1,8 @@
 package classes;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -15,7 +12,9 @@ import java.util.Objects;
 public class Route implements Comparable<Route>{
     private String Id; // уникальный идентификатор
     private Double Distance; // видимо длинная маршрута в единицах измерения
-    private Integer Popularity; // кол-во запросов к этому маршруту
+    private Integer Popularity = 0; // кол-во запросов к этому маршруту
+    private boolean IsFavorite; // является ли она избранной для данного пользователя
+    private List<String> LocationPoints; // список строк (Точка, для упрощения, просто названия городов);
 
     public String getId() {
         return Id;
@@ -39,10 +38,8 @@ public class Route implements Comparable<Route>{
 
     public void setLocationPoints(List<String> locationPoints) {
         LocationPoints = locationPoints;
-        this.setId(String.valueOf(locationPoints.hashCode()));
+        this.setId(String.valueOf(Math.abs(locationPoints.hashCode())));
     }
-
-    private boolean IsFavorite; // является ли она избранной для данного пользователя
 
     public Double getDistance() {
         return Distance;
@@ -60,20 +57,8 @@ public class Route implements Comparable<Route>{
         Popularity = popularity;
     }
 
-    private List<String> LocationPoints; // список строк (Точка, для упрощения, просто названия городов);
-
     public void addPopularity(){
         setPopularity(++Popularity);
-    }
-    public String getStartPoint(){
-        return LocationPoints.get(0);
-    }
-    public String getEndPoint(){
-        int len = LocationPoints.size();
-        return LocationPoints.get(--len);
-    }
-    public int getCountOFPoints(){
-        return LocationPoints.size();
     }
 
     @Override
@@ -86,20 +71,19 @@ public class Route implements Comparable<Route>{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Route route = (Route) o;
-        int len = LocationPoints.size();
         return (Double.compare(Distance, route.Distance) == 0 &&
                 Popularity == route.Popularity && IsFavorite == route.IsFavorite &&
                 Objects.equals(Id, route.Id) &&
-                Objects.equals(LocationPoints, route.LocationPoints)) ||
-
-                (Objects.equals(getStartPoint(), route.getStartPoint()) &&
-                        getCountOFPoints() == route.getCountOFPoints() &&
-                        Objects.equals(getEndPoint(), route.getEndPoint()));
+                Objects.equals(LocationPoints, route.LocationPoints));
+//                ||(Objects.equals(getStartPoint(), route.getStartPoint()) &&
+//                        getCountOFPoints() == route.getCountOFPoints() &&
+//                        Objects.equals(getEndPoint(), route.getEndPoint()));
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(LocationPoints.get(0) + LocationPoints.get(LocationPoints.size() - 1));
+        return Math.abs(Objects.hash(
+                LocationPoints.get(0) + LocationPoints.get(LocationPoints.size() - 1)+LocationPoints.size()));
     }
 
     @Override
@@ -114,21 +98,5 @@ public class Route implements Comparable<Route>{
     }
 
     //  Обязательно реализуйте equals и hashCode для Navigator.Route.
-}
-
-class RouteDistanceComparator implements Comparator<Route> {
-
-    @Override
-    public int compare(Route o1, Route o2) {
-        return o1.getDistance().compareTo(o2.getDistance());
-    }
-}
-
-class RoutePopularityComparator implements Comparator<Route> {
-
-    @Override
-    public int compare(Route o1, Route o2) {
-        return o1.getPopularity().compareTo(o2.getPopularity());
-    }
 }
 
